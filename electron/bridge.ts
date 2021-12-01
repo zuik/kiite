@@ -12,13 +12,19 @@ export const api = {
   sendMessage: (message: string) => {
     ipcRenderer.send('message', message)
   },
+  /**
+   * Open a file picker dialog
+   */
+  openFileDialog: () => {
+    ipcRenderer.send('open-file-dialog', 'open')
+  },
 
   /**
    * Provide an easier way to listen to events
    */
   on: (channel: string, callback: Function) => {
     ipcRenderer.on(channel, (_, data) => callback(data))
-  }
+  },
 }
 
 contextBridge.exposeInMainWorld('Main', api)
