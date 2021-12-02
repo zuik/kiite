@@ -1,4 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { promises as fs } from 'fs'
+const dataurl = require('dataurl')
 
 let mainWindow: BrowserWindow | null
 
@@ -30,6 +32,16 @@ function createWindow() {
   })
 }
 
+/**
+ * Convert local filePath to a URL that we can reference from the browser.
+ * @param filePath local path to the file
+ */
+async function getFileURL(filePath: string): Promise<string> {
+  const fileData = await fs.readFile(filePath)
+
+  return dataurl.convert({ fileData, mimetype: 'audio/mp3' })
+}
+
 async function registerListeners() {
   /**
    * This comes from bridge integration, check bridge.ts
@@ -42,7 +54,9 @@ async function registerListeners() {
       properties: ['openFile', 'multiSelections'],
     })
     console.log(`selected files ${filePaths}`)
-    event.reply('open-file-dialog-reply', filePaths)
+    if (filePaths) {
+      event.reply('open-file-dialog-reply', getFileURL(filePaths[0]))
+    }
   })
 }
 
