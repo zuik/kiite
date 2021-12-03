@@ -17,15 +17,21 @@ function AudioPlayerControl(props: { filePath: string }) {
 
 export function AudioPlayer() {
   const [filePath, setFilePath] = useState<string | undefined>(undefined)
+  const [fileContent, setFileContent] = useState<any>(undefined)
 
   function handleOpenFile() {
     window.Main.sendMessage('Click')
 
     window.Main.openFileDialog()
 
-    window.Main.on('open-file-dialog-reply', (filePath: string) => {
-      setFilePath(filePath)
-    })
+    window.Main.on(
+      'open-file-dialog-reply',
+      (replyData: { filePath: string; data: any }) => {
+        const filePath = replyData.filePath
+        setFilePath(filePath)
+        setFileContent(replyData.blob)
+      }
+    )
   }
   return (
     <Container>
@@ -33,7 +39,8 @@ export function AudioPlayer() {
       <Button onClick={handleOpenFile}>Click here!</Button>
       <Text>{filePath ? `Filepath: ${filePath}` : 'No file selected'}</Text>
 
-      {filePath && <AudioPlayerControl filePath={filePath} />}
+      {/* {fileContent && <Text>{fileContent}</Text>} */}
+      {fileContent && <audio controls src={fileContent}></audio>}
     </Container>
   )
 }

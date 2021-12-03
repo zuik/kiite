@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { promises as fs } from 'fs'
-const dataurl = require('dataurl')
+import babelConfig from '../babel.config'
+import { Howl, Howler } from 'howler';
 
 let mainWindow: BrowserWindow | null
 
@@ -32,15 +33,6 @@ function createWindow() {
   })
 }
 
-/**
- * Convert local filePath to a URL that we can reference from the browser.
- * @param filePath local path to the file
- */
-async function getFileURL(filePath: string): Promise<string> {
-  const fileData = await fs.readFile(filePath)
-
-  return dataurl.convert({ fileData, mimetype: 'audio/mp3' })
-}
 
 async function registerListeners() {
   /**
@@ -49,13 +41,23 @@ async function registerListeners() {
   ipcMain.on('message', (_, message) => {
     console.log(message)
   })
-  ipcMain.on('open-file-dialog', (event, _) => {
+  ipcMain.on('open-file-dialog', async (event, _) => {
     const filePaths = dialog.showOpenDialogSync({
       properties: ['openFile', 'multiSelections'],
     })
     console.log(`selected files ${filePaths}`)
     if (filePaths) {
-      event.reply('open-file-dialog-reply', getFileURL(filePaths[0]))
+      // const fileData: Buffer = await fs.readFile(filePaths[0])
+      const blob = ""
+      // const blob = fileData.toString("base64") 
+      // const objectURL = window.URL.createObjectURL(blob)
+      // console.log(blob)
+      const sound = new Howl({
+        src: [filePaths[0]]
+      });
+
+      sound.play();
+      event.reply('open-file-dialog-reply', { "filePath": filePaths[0], "blob": `data:application/ogg;base64;${blob}` })
     }
   })
 }
