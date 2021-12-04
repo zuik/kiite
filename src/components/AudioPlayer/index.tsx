@@ -26,10 +26,18 @@ export function AudioPlayer() {
 
     window.Main.on(
       'open-file-dialog-reply',
-      (replyData: { filePath: string; data: any }) => {
+      (replyData: { filePath: string; blob: any }) => {
         const filePath = replyData.filePath
         setFilePath(filePath)
-        setFileContent(replyData.blob)
+
+        fetch(replyData.blob)
+          .then(resp => resp.blob())
+          .then(blob => {
+            const blobURL = URL.createObjectURL(blob)
+            console.log(`Blob: ${blobURL}`)
+
+            setFileContent(blobURL)
+          })
       }
     )
   }
@@ -39,7 +47,6 @@ export function AudioPlayer() {
       <Button onClick={handleOpenFile}>Click here!</Button>
       <Text>{filePath ? `Filepath: ${filePath}` : 'No file selected'}</Text>
 
-      {/* {fileContent && <Text>{fileContent}</Text>} */}
       {fileContent && <audio controls src={fileContent}></audio>}
     </Container>
   )

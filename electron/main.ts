@@ -47,17 +47,13 @@ async function registerListeners() {
     })
     console.log(`selected files ${filePaths}`)
     if (filePaths) {
-      // const fileData: Buffer = await fs.readFile(filePaths[0])
-      const blob = ""
-      // const blob = fileData.toString("base64") 
+      const fileData: Buffer = await fs.readFile(filePaths[0])
+      
+      const blob = fileData.toString("base64") 
       // const objectURL = window.URL.createObjectURL(blob)
       // console.log(blob)
-      const sound = new Howl({
-        src: [filePaths[0]]
-      });
-
-      sound.play();
-      event.reply('open-file-dialog-reply', { "filePath": filePaths[0], "blob": `data:application/ogg;base64;${blob}` })
+      
+      event.reply('open-file-dialog-reply', { "filePath": filePaths[0], "blob": `data:audio/mp3;base64,${blob}` })
     }
   })
 }
